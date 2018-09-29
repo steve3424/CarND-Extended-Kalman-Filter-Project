@@ -2,7 +2,6 @@
 #include "tools.h"
 #include "Eigen/Dense"
 #include <iostream>
-#include <math.h>
 
 using namespace std;
 using Eigen::MatrixXd;
@@ -57,11 +56,8 @@ FusionEKF::FusionEKF() {
 	  0, 1, 0, 0;
 
 
-  //acceleration noise
-  noise_ax = 9;
-  noise_ay = 9;
-
 }
+
 
 /**
 * Destructor.
@@ -129,7 +125,9 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   ekf_.F_(0, 2) = dt;
   ekf_.F_(1, 3) = dt;
 
-  //update process noise covariance matrix with dt
+  //update process noise matrix with dt and acceleration noise
+  int noise_ax = 9;
+  int noise_ay = 9;
   float dt_2 = dt * dt;
   float dt_3 = dt_2 * dt;
   float dt_4 = dt_3 * dt;
@@ -156,7 +154,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 	// calculate Jacobian
 	  Hj_ = tools.CalculateJacobian(ekf_.x_);
 	// set radar matrices and update
-	  ekf_.H_ = Hj;
+	  ekf_.H_ = Hj_;
 	  ekf_.R_ = R_radar_;
 	  ekf_.UpdateEKF(measurement_pack.raw_measurements_);
   } else {
