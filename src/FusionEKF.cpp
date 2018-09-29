@@ -2,6 +2,7 @@
 #include "tools.h"
 #include "Eigen/Dense"
 #include <iostream>
+#include <math.h>
 
 using namespace std;
 using Eigen::MatrixXd;
@@ -82,25 +83,30 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     ekf_.x_ = VectorXd(4);
     ekf_.x_ << 1, 1, 1, 1;
 
+
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
       /**
       Convert radar from polar to cartesian coordinates and initialize state.
       */
-		float px = cos(measurement_pack.raw_measurements_[1])*measurement_pack.raw_measurements_[0];
-		float py = sin(measurement_pack.raw_measurements_[1])*measurement_pack.raw_measurements_[0];
-		ekf_.x_(0, 0) = px;
-		ekf_.x_(0, 1) = py;
+
+		float px = cos(measurement_pack.raw_measurements_(1))*measurement_pack.raw_measurements_(0);
+		float py = sin(measurement_pack.raw_measurements_(1))*measurement_pack.raw_measurements_(0);
+		ekf_.x_(0) = px;
+		ekf_.x_(1) = py;
+
     }
     else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
       /**
       Initialize state.
       */
-		ekf_.x_(0, 0) = measurement_pack.raw_measurements_[0];
-		ekf_.x_(0, 1) = measurement_pack.raw_measurements_[1];
+		ekf_.x_(0) = measurement_pack.raw_measurements_(0);
+		ekf_.x_(1) = measurement_pack.raw_measurements_(1);
+
     }
 
+
     // done initializing, no need to predict or update
-	previous_timestamp_ = measurement_pack.timestamp_;
+    previous_timestamp_ = measurement_pack.timestamp_;
     is_initialized_ = true;
     return;
   }
