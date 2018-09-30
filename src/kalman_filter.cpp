@@ -1,7 +1,5 @@
 #include "kalman_filter.h"
 #include <cmath>
-// REMOVE !!!!
-#include <iostream>
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -55,19 +53,18 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   TODO:
     * update the state by using Extended Kalman Filter equations
   */
+
 	// map cartesian to polar 
 	float px = x_(0);
 	float py = x_(1);
 	float vx = x_(2);
 	float vy = x_(3);
 	
-	
-	VectorXd h(3);
-	h << sqrt(px*px + py * py), atan(py / px), (px*vx + py * vy) / sqrt(px*px + py * py);
-	VectorXd y = z - h * x_;
+	VectorXd z_pred(3);
+	z_pred << sqrt(px*px + py * py), atan(py / px), (px*vx + py * vy) / sqrt(px*px + py * py);
+	VectorXd y = z - z_pred;
 	MatrixXd S = H_ * P_*H_.transpose() + R_;
 	MatrixXd K = P_ * H_.transpose()*S.inverse();
-	
 
 	// new estimates
 	x_ = x_ + (K*y);
